@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado da Validação</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; padding: 20px; }
+        .container { max-width: 550px; margin: auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .status-valid { background: #28a745; color: white; padding: 20px; text-align: center; font-weight: bold; font-size: 18px; }
+        .status-error { background: #dc3545; color: white; padding: 20px; text-align: center; font-weight: bold; }
+        .content { padding: 25px; }
+        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .label { font-weight: bold; color: #666; }
+        .val { color: #333; text-align: right; }
+        .footer { text-align: center; font-size: 11px; color: #aaa; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container" id="box">
+        <div id="loading" style="padding: 40px; text-align: center;">Consultando banco de dados...</div>
+        <div id="resultado" style="display: none;">
+            <div class="status-valid">✅ DOCUMENTO DIGITALMENTE AUTENTICADO</div>
+            <div class="content">
+                <div class="row"><span class="label">Paciente:</span> <span class="val" id="p"></span></div>
+                <div class="row"><span class="label">CPF:</span> <span class="val" id="cpf"></span></div>
+                <div class="row"><span class="label">Médico:</span> <span class="val" id="m"></span></div>
+                <div class="row"><span class="label">CRM:</span> <span class="val" id="crm"></span></div>
+                <div class="row"><span class="label">Afastamento:</span> <span class="val" id="af"></span></div>
+                <div class="row"><span class="label">Status:</span> <span class="val" style="color: green; font-weight: bold;">ATIVO</span></div>
+                <div class="row" style="border:none;"><span class="label">Hash:</span> <span class="val" id="hash" style="font-size: 10px;"></span></div>
+            </div>
+            <div class="footer">Este documento foi validado em conformidade com a ICP-Brasil e CFM.</div>
+        </div>
+    </div>
+    <script>
+        const chave = new URLSearchParams(window.location.search).get('chave');
+        fetch(`/api/validar?chave=${chave}`)
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('loading').style.display = 'none';
+                if(d.erro) {
+                    document.getElementById('box').innerHTML = `<div class="status-error">❌ DOCUMENTO INVÁLIDO</div><div style="padding:30px;text-align:center;">Chave não encontrada no sistema.</div>`;
+                } else {
+                    document.getElementById('resultado').style.display = 'block';
+                    document.getElementById('p').innerText = d.paciente;
+                    document.getElementById('cpf').innerText = d.cpf;
+                    document.getElementById('m').innerText = d.medico;
+                    document.getElementById('crm').innerText = d.crm;
+                    document.getElementById('af').innerText = `${d.inicio} a ${d.fim} (${d.afastamento})`;
+                    document.getElementById('hash').innerText = d.assinatura_digital;
+                }
+            });
+    </script>
+</body>
+</html>
