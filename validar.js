@@ -1,7 +1,14 @@
 export default function handler(req, res) {
     const { chave } = req.query;
 
-    // BANCO DE DATOS - ADICIONE NOVOS AQUI
+    // proteção básica
+    if (!chave) {
+        return res.status(200).json({
+            erro: true,
+            mensagem: "Chave não informada"
+        });
+    }
+
     const base_dados = {
         "CFM-G3-7H3F9J6F1": {
             paciente: "Alessandra de oliveira trindade",
@@ -15,16 +22,19 @@ export default function handler(req, res) {
             inicio: "02/02/2026",
             fim: "06/02/2026",
             unidade: "UPA Centro-Sul",
-            assinatura_digital: "8b27ca3ac92b1e458763076a"
+            assinatura_digital: "8b27ca3ac92b1e458763076a",
+            status: "ATIVO"
         }
-        // Para adicionar mais, coloque uma vírgula acima e copie o bloco
     };
 
     const resultado = base_dados[chave];
 
-    if (resultado) {
-        return res.status(200).json(resultado);
-    } else {
-        return res.status(404).json({ erro: "Documento não localizado na base" });
+    if (!resultado) {
+        return res.status(200).json({
+            erro: true,
+            mensagem: "Documento não localizado na base"
+        });
     }
+
+    return res.status(200).json(resultado);
 }
